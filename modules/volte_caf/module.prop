@@ -1,0 +1,6 @@
+id=volte_caf
+name=VoLTE CAF IMS（org.codeaurora.ims）
+version=v0.1
+versionCode=1
+author=PDWYX
+description=把高通 CAF IMS 栈（phh GSI 重编的 org.codeaurora.ims，testkey 签名）装进 /system/priv-app，并用预装 RRO 把 config_ims_package 指向它，让高通 GSI 通过 vendor 的 IMS HIDL 服务注册 VoLTE。禁用模块并重启即可回滚。

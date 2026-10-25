@@ -1,0 +1,6 @@
+id=901si_gsi_fixes
+name=901si GSI 修复（msm8909 / Adreno 304）
+version=v1.0
+versionCode=1
+author=PDWYX
+description=专为软银 901si（msm8909 + Adreno 304）刷 Android 9 GSI 后准备：①关闭 HWUI 缓冲代龄，消除通知栏/列表闪屏与残影；②强制 venus 解码器回到合并模式，恢复硬件视频解码；③替换打过补丁的 libmmqjpeg_codec.so，避免拍照后 FORTIFY abort。禁用模块并重启即可完全回滚。

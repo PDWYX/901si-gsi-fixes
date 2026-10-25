@@ -1,0 +1,6 @@
+id=lis2ds12_int
+name=LIS2DS12 加速度计数据就绪中断修复
+version=v1.3
+versionCode=4
+author=PDWYX
+description=让 LIS2DS12 的数据就绪中断以每样本一个脉冲（CTRL4 0x23=0x01）触发到 INT1，恢复自动旋转；不会产生 0x22 锁存模式的约 390 次/秒中断风暴。创建 /data/local/tmp/lis2ds12_off 后重启可停用。

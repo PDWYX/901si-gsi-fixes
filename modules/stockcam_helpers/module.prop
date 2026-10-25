@@ -1,0 +1,6 @@
+id=stockcam_helpers
+name=原厂相机支持（901si）
+version=v1.0
+versionCode=1
+author=PDWYX
+description=为软银 901si 原厂相机「カメラ」(jp.co.seiko.kidsphone) 在 GSI 上运行提供两个小补丁：系统事件日志 provider 替身（com.ssol.eventlog）与相册转接（org.codeaurora.gallery）。开机自动补齐缺失的包与权限；相机 APK 本身需你从自己的原厂镜像提取后安装。

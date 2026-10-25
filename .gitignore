@@ -1,0 +1,19 @@
+# build products and local signing material
+build/
+dist/
+*.idsig
+*.keystore
+*.jks
+*.pk8
+local.properties
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# editor / OS
+.DS_Store
+.idea/
+.gradle/
+out/
