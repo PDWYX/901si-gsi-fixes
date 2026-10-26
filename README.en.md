@@ -42,7 +42,7 @@ The modules are validated only against the baseline above. Other devices with th
 |---|---|---|---|
 | `901si_gsi_fixes` | v1.0 | HWUI flicker/stale frames, venus hardware decoding, JPEG HAL camera abort | `901si-gsi-fixes-v1.0.zip` |
 | `lis2ds12_int` | v1.3 | LIS2DS12 data-ready interrupt never routed; auto-rotation dead | `lis2ds12_int-v1.3.zip` |
-| `ledlineage` | v1.0 | Vendor LED HAL path missing + SELinux denial; status LED dead | `ledlineage-v1.0.zip` |
+| `ledlineage` | v1.2 | Vendor LED HAL path missing + SELinux denial; v1.2 cuts polling overhead and kills the boot green LED | `ledlineage-v1.2.zip` |
 | `volte_caf` | v0.1 | CAF IMS stack missing from the GSI; VoLTE cannot register | `volte_caf-v0.1.zip` |
 | `stockcam_helpers` | v1.0 | Stock camera missing its event-log provider and gallery component | `stockcam_helpers-v1.0.zip` |
 
@@ -151,6 +151,10 @@ Disable it with `touch /data/local/tmp/lis2ds12_off` and reboot.
 **Fix.** `post-fs-data.sh` mounts a tmpfs over `/sys/class/leds`, bind-mounts the original entries (backlight, flashlight, etc.) back in, creates `red/green/blue` compatibility nodes with `chmod 666`, and grants `hal_light_default` access via `magiskpolicy --live`. `daemon.sh` translates the HAL's 0–255 brightness into the driver's pattern `0/1` and keeps `poweron=1`.
 
 **Safety valve.** If `lcd-backlight/brightness` is unreadable after the overlay, the script immediately `umount`s and rolls back, so the screen cannot be left dark.
+
+**v1.2 (current).** The v1.0 daemon used `cat`/`tr` every 0.15 s, spawning roughly 40 short-lived processes per second and burning about 2% of one core. v1.1 replaced all of that with shell builtins (zero fork) and relaxed the poll to 0.4 s. v1.2 tightens it to 0.25 s, rewrites the pattern unconditionally for the first 50 s after boot, and clears all three channels before enabling `poweron` in `post-fs-data`, so the green LED that the driver lights during probe disappears sooner. Measured: about 0.23 s average response and 0.5% of one core (v1.0: about 2.0%).
+
+> **The old build has been withdrawn.** `ledlineage-v1.0.zip` has been removed from Releases; use v1.2. The old build does not damage the device — it simply polls harder and leaves the boot green LED on longer.
 
 ### 6. VoLTE (`volte_caf`)
 

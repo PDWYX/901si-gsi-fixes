@@ -32,7 +32,17 @@ I avc: denied { read write } for name="redled" dev="sysfs" ... scontext=u:r:hal_
 
 ### service.sh + daemon.sh
 
-把 HAL 写的 0–255 亮度翻译成驱动认的 pattern 值，并把 `poweron` 置 1。
+`service.sh` 定位模块目录并常驻拉起 `daemon.sh`；`daemon.sh` 把 HAL 写的 0–255 亮度翻译成驱动认的 pattern 值，并把 `poweron` 置 1。v1.2 不再等 `sys.boot_completed`，开机约 30 秒即启动守护。
+
+## 版本演进
+
+| 版本 | 改动 | 效果/代价 |
+|---|---|---|
+| v1.0 | 每 0.15 秒用 `cat`/`tr` 读 brightness 与 poweron | 每秒约 40 个短命进程，约 2% 单核 |
+| v1.1 | 全部改用 shell 内建 `read`/`echo`，零 fork；轮询放宽到 0.4 秒 | 稳态无子进程 |
+| v1.2 | 轮询收紧到 0.25 秒；前 200 轮无条件回写；`post-fs-data` 先清零三路再开 `poweron`；`service.sh` 立即启动 | 响应约 0.23 秒，约 0.5% 单核；开机绿灯窗口明显缩短 |
+
+v1.0 已从 Releases 撤下；它不会损坏设备，但更耗电、开机绿灯更久。
 
 ## 为什么需要翻译
 
@@ -54,7 +64,7 @@ HAL 送的是亮度（255 = 全亮）。另外驱动有总闸 `poweron`：`power
 | 通知灯 | `NotificationManagerService`（受设置里“通知灯”开关控制） | 只翻译 |
 | 屏幕背光 / 手电筒 | `LightsService` | 路径原样透传，未改动 |
 
-模块不读电量、不监听通知，判断全在系统里；守护进程每 0.15 秒读三个 4 字节文件，功耗可忽略。
+模块不读电量、不监听通知，判断全在系统里；v1.2 每 0.25 秒读三个 4 字节文件，稳态零 fork，功耗可忽略。
 
 ## 绝对不能写
 
@@ -77,6 +87,8 @@ HAL 送的是亮度（255 = 全亮）。另外驱动有总闸 `poweron`：`power
 ```sh
 adb shell su -c 'cat /data/adb/ledlineage/boot.log'
 # overlay ok, backlight=255
+# before clear: patternid:1 patternid:1
+# state: patternid:0 patternid:0
 # ... supervising /data/adb/modules/ledlineage/daemon.sh
 
 adb shell su -c 'ls /sys/class/leds/red /sys/class/leds/green'

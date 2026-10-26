@@ -1,6 +1,6 @@
 id=ledlineage
 name=Lineage 状态灯桥接（SLG4AX / msm8909）
-version=v1.0
-versionCode=1
+version=v1.2
+versionCode=3
 author=PDWYX
 description=让系统灯 HAL 驱动 slg4ax42959v 的红/绿状态灯：在 /sys/class/leds 下建立兼容的 red|green|blue 路径，并把 HAL 下发的 0–255 亮度翻译为驱动 pattern 0/1。只支持常亮，无蓝灯；禁用模块重启即完全回滚。

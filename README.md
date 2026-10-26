@@ -42,7 +42,7 @@
 |---|---|---|---|
 | `901si_gsi_fixes` | v1.0 | HWUI 闪屏/残影、venus 硬解、JPEG HAL 拍照 abort | `901si-gsi-fixes-v1.0.zip` |
 | `lis2ds12_int` | v1.3 | LIS2DS12 数据就绪中断未路由，自动旋转失效 | `lis2ds12_int-v1.3.zip` |
-| `ledlineage` | v1.0 | 厂商灯 HAL 路径不存在 + SELinux 拒绝，红/绿状态灯不亮 | `ledlineage-v1.0.zip` |
+| `ledlineage` | v1.2 | 厂商灯 HAL 路径不存在 + SELinux 拒绝；v1.2 降低轮询开销并压掉开机绿灯 | `ledlineage-v1.2.zip` |
 | `volte_caf` | v0.1 | GSI 缺 CAF IMS 栈，VoLTE 无法注册 | `volte_caf-v0.1.zip` |
 | `stockcam_helpers` | v1.0 | 原厂相机缺少事件日志 provider 与相册组件 | `stockcam_helpers-v1.0.zip` |
 
@@ -151,6 +151,10 @@ F/libc: Fatal signal 6 (SIGABRT) in tid 839 (OMX_ImgEnc)
 **修法**：`post-fs-data.sh` 用 tmpfs 覆盖 `/sys/class/leds`，把原有条目（背光、手电筒等）bind mount 回去，新建 `red/green/blue` 兼容节点并 `chmod 666`，再用 `magiskpolicy --live` 给 `hal_light_default` 放行。`daemon.sh` 把 HAL 下发的 0–255 亮度翻译成驱动认的 pattern `0/1`，并保持 `poweron=1`。
 
 **安全阀**：如果覆盖后读不到 `lcd-backlight/brightness`，立刻 `umount` 回滚，不会留下黑屏。
+
+**v1.2（当前版本）**：v1.0 的守护每 0.15 秒用 `cat`/`tr` 读节点，每秒产生约 40 个短命进程，长期占用约 2% 单核；v1.1 改成纯 shell 内建、零 fork，并把轮询放宽到 0.4 秒。v1.2 在此基础上把轮询收紧到 0.25 秒，开机前 50 秒无条件回写 pattern，并在 `post-fs-data` 阶段先清零三路再开 `poweron`，把驱动 probe 默认点亮的绿灯压掉。实测平均响应约 0.23 秒、CPU 约 0.5% 单核（v1.0 约 2.0%）。
+
+> **旧版已撤下**：`ledlineage-v1.0.zip` 已从 Releases 移除，请使用 v1.2。旧版并不会损坏设备，只是守护进程更耗电、开机绿灯窗口更长。
 
 ### 6. VoLTE（`volte_caf`）
 
